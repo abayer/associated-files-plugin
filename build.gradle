@@ -8,7 +8,7 @@ buildscript {
         // The plugin is currently only available via the Jenkins Maven repository.
     }
     dependencies {
-        classpath group: 'org.jenkins-ci.tools', name: 'gradle-jpi-plugin', version: '0.3'
+        classpath group: 'org.jenkins-ci.tools', name: 'gradle-jpi-plugin', version: '0.3.1'
     }
 }
 
