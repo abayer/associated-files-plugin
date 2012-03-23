@@ -1,8 +1,10 @@
 package org.jenkinsci.plugins.associatedfiles
 
 import hudson.model.Action
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.export.ExportedBean;
 
-
+@ExportedBean
 public class AssociatedFilesAction implements Action {
   String buildAssociatedFiles
   
@@ -22,6 +24,7 @@ public class AssociatedFilesAction implements Action {
     return "associatedFiles"
   }
   
+  @Exported(visibility=2)
   public getBuildAssociatedFilesList() {
     return buildAssociatedFiles.split(',').collect { it.trim() }
   }
