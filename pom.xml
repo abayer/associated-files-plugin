@@ -40,8 +40,8 @@
 
   <repositories>
     <repository>
-      <id>jenkins-ci</id>
-      <url>http://maven.jenkins-ci.org/content/repositories/releases</url>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
     </repository>
   </repositories>
 
@@ -51,6 +51,11 @@
       <!-- Unofficial Gmaven deps for Groovy-->
       <id>kurtharriger-gmaven-snapshots</id>
       <url>https://github.com/kurtharriger/gmaven/raw/maven/snapshots</url>
+    </pluginRepository>
+
+    <pluginRepository>
+       <id>repo.jenkins-ci.org</id>
+       <url>http://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
     
   </pluginRepositories>
