@@ -14,7 +14,7 @@ buildscript {
 
 
 group = "org.jenkinsci.plugins"
-version = "0.2.0"
+version = "0.2.1"
 description = "This plugin allows for marking files or directories outside of Jenkins as related to a build."
 archivesBaseName = "associated-files"
 
