@@ -26,6 +26,9 @@ public class AssociatedFilesAction implements Action {
   
   @Exported(visibility=2)
   public getBuildAssociatedFilesList() {
-    return buildAssociatedFiles.split(',').collect { it.trim() }
+      if (buildAssociatedFiles != null)
+          return buildAssociatedFiles.split(',').collect { it.trim() }
+      else
+          return ""
   }
 }
