@@ -15,18 +15,20 @@ buildscript {
 
 
 group = "org.jenkinsci.plugins"
-version = "0.2.1"
+version = "0.3.0-SNAPSHOT"
 description = "This plugin allows for marking files or directories outside of Jenkins as related to a build."
 archivesBaseName = "associated-files"
 
 apply plugin: 'jpi'
 
 dependencies {
-    groovy localGroovy()
+  groovy localGroovy()
+  compile([group: "org.jenkins-ci.main", name: "maven-plugin", version: "1.480", ext: "hpi"],
+          [group: "org.jenkins-ci.plugins", name: "parameterized-trigger", version: "2.18"])
 }
 
 jenkinsPlugin {
-    coreVersion = '1.420'
+    coreVersion = '1.480'
     displayName = 'Associated Files Plugin'
     url = "https://wiki.jenkins-ci.org/display/JENKINS/Associated+Files+Plugin"
     gitHubUrl = "https://github.com/jenkinsci/associated-files-plugin"
