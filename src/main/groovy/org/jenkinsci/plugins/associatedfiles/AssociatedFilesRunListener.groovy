@@ -28,7 +28,7 @@ public class AssociatedFilesRunListener extends RunListener<AbstractBuild> {
             if (!previousGoodBuild.isKeepLog()) {
               // Don't keep the children forever any more.
               getDownstreamBuilds(previousGoodBuild).each { b ->
-                log.warning("Un-marking previous child build ${b.getProject().name} #${b.number} as keep forever")
+                //log.warning("Un-marking previous child build ${b.getProject().name} #${b.number} as keep forever")
                 b.keepLog(false)
               }
             }
@@ -36,7 +36,7 @@ public class AssociatedFilesRunListener extends RunListener<AbstractBuild> {
 
           // Now keep the children of *this* build forever
           getDownstreamBuilds(build).each { b ->
-            log.warning("Marking child build ${b.getProject().name} #${b.number} as keep forever")
+            //log.warning("Marking child build ${b.getProject().name} #${b.number} as keep forever")
             b.keepLog(true)
           }
         }
