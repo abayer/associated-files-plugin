@@ -1,3 +1,5 @@
+package org.jenkinsci.plugins.associatedfiles.AssociatedFilesPublisher
+
 import lib.LayoutTagLib
 
 l=namespace(LayoutTagLib)
