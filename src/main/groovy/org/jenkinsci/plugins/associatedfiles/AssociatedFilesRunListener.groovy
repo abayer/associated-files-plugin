@@ -2,11 +2,7 @@ package org.jenkinsci.plugins.associatedfiles
 import java.util.logging.Logger
 
 import hudson.Extension
-import hudson.model.AbstractBuild
-import hudson.model.AbstractProject
-import hudson.model.Cause
-import hudson.model.Result
-import hudson.model.TaskListener
+import hudson.model.*
 import hudson.model.listeners.RunListener
 import hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig
 import hudson.plugins.parameterizedtrigger.TriggerBuilder
@@ -17,26 +13,37 @@ public class AssociatedFilesRunListener extends RunListener<AbstractBuild> {
   private final Logger log = Logger.getLogger(AssociatedFilesRunListener.class.getName());
 
   @Override
-  public void onCompleted(AbstractBuild build, TaskListener taskListener) {
-    if (build.getResult().equals(Result.SUCCESS)) {
-      def previousGoodBuild = build.getPreviousSuccessfulBuild()
+  public void onFinalized(AbstractBuild build) {
+    AbstractProject origProj = build.getProject()
+    if (origProj instanceof FreeStyleProject) {
+      FreeStyleProject proj = (FreeStyleProject) origProj
 
-      if (previousGoodBuild != null) {
-        // If the previous build isn't kept forever, look at its children.
-        if (!previousGoodBuild.isKeepLog()) {
-          // Don't keep the children forever any more.
-          getDownstreamBuilds(previousGoodBuild).each { b ->
-            b.keepLog(false)
+      def afa = build.getActions().any { it.getClass().toString().equals(AssociatedFilesAction.class.toString()) }
+      if (afa && proj.getBuilders().any { it.getClass().toString().equals(TriggerBuilder.class.toString()) }) {
+        if (build.getResult().equals(Result.SUCCESS)) {
+          def previousGoodBuild = build.getPreviousSuccessfulBuild()
+
+          if (previousGoodBuild != null) {
+            // If the previous build isn't kept forever, look at its children.
+            if (!previousGoodBuild.isKeepLog()) {
+              // Don't keep the children forever any more.
+              getDownstreamBuilds(previousGoodBuild).each { b ->
+                log.warning("Un-marking previous child build ${b.getProject().name} #${b.number} as keep forever")
+                b.keepLog(false)
+              }
+            }
           }
-        }
 
-        // Now keep the children of *this* build forever
-        getDownstreamBuilds(build).each { b ->
-          b.keepLog(true)
+          // Now keep the children of *this* build forever
+          getDownstreamBuilds(build).each { b ->
+            log.warning("Marking child build ${b.getProject().name} #${b.number} as keep forever")
+            b.keepLog(true)
+          }
         }
       }
     }
   }
+
 
   public void onDeleted(AbstractBuild build) {
     AssociatedFilesAction afa = build.getAction(AssociatedFilesAction.class)
@@ -78,12 +85,14 @@ public class AssociatedFilesRunListener extends RunListener<AbstractBuild> {
 
     def depBuilds = [];
 
-    origProj.getBuilders().findAll { it instanceof TriggerBuilder }.each { t ->
-      t.getConfigs().findAll { it instanceof BlockableBuildTriggerConfig }.each { c ->
-        c.getProjects().split(/\,\s*/).collect { Jenkins.instance.getItem(it) }.each { pp ->
-          pp.getBuilds().findAll { it.getCause(Cause.UpstreamCause.class)?.upstreamProject.equals(origProj.getName()) &&
-                  it.getCause(Cause.UpstreamCause.class)?.upstreamBuild.equals(origBuild.getNumber()) }.each {
-            depBuilds << it;
+    if (origProj.class == FreeStyleProject.class) {
+      origProj.getBuilders().findAll { it.getClass().toString().equals(TriggerBuilder.class.toString()) }.each { t ->
+        t.getConfigs().findAll { it.getClass().toString().equals(BlockableBuildTriggerConfig.class.toString()) }.each { c ->
+          c.getProjects().split(/\,\s*/).collect { Jenkins.instance.getItem(it) }.each { pp ->
+            pp.getBuilds().findAll { it.getCause(Cause.UpstreamCause.class)?.upstreamProject.equals(origProj.getName()) &&
+                    it.getCause(Cause.UpstreamCause.class)?.upstreamBuild.equals(origBuild.getNumber()) }.each {
+              depBuilds << it;
+            }
           }
         }
       }
@@ -91,5 +100,4 @@ public class AssociatedFilesRunListener extends RunListener<AbstractBuild> {
 
     return depBuilds;
   }
-
 }
